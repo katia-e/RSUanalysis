@@ -48,6 +48,7 @@ int main(int argc,char *argv[])
 			case 6: nTerms = atoi(argv[i]);
 			case 7: stopping = atof(argv[i]);
 			case 8: W = atof(argv[i]);
+			case 9: beta = atof(argv[i])
 		};
 	double percision = 1;
 	fOutput = "QTermsK"+to_string(K)+
@@ -63,7 +64,9 @@ int main(int argc,char *argv[])
 				<<"nTerms = "<<nTerms<<endl
 				<<"eps = "<<stopping<<endl
 				<<"W = "<<W<<endl
-				<<"Output file is "<<fOutput<<endl;				
+				<<"Output file is "<<fOutput<<endl
+				<<"beta = "<<beta[0]<<beta[1]<<beta[2];	
+				
 	int DIM = M*(C+1);		// number of dimentions in the queueing model
 	// Analysis parameters
 	int const nSamples = 20;
