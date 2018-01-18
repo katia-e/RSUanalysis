@@ -41,14 +41,18 @@ int main(int argc,char *argv[])
 	for(int i = 1; i<argc; i++) // example of command line
 		switch (i){			// 10.0 7 3 3 1.0 20 0.000001 0.9
 			case 1: MuJac = atof(argv[i]); 
+			case 2: car_rate = atof(argv[i]);
 			case 2: K = atoi(argv[i]); 
 			case 3: C = atoi(argv[i]); 
 			case 4: M = atoi(argv[i]); 
 			case 5: lam = atof(argv[i]);
 			case 6: nTerms = atoi(argv[i]);
 			case 7: stopping = atof(argv[i]);
+				cout<<endl<<argv[i]<<endl;
 			case 8: W = atof(argv[i]);
-			case 9: beta = atof(argv[i])
+			case 9: beta[0] = atof(argv[i]);
+			case 10: beta[1] = atof(argv[i]);
+			case 11: beta[2] = atof(argv[i]);
 		};
 	double percision = 1;
 	fOutput = "QTermsK"+to_string(K)+
@@ -56,6 +60,7 @@ int main(int argc,char *argv[])
 					"-mu"+toStringPrecision(MuJac,percision)+"-lam"+toStringPrecision(lam,percision)+
 					"-W"+toStringPrecision(W,percision) + "-stop"+toStringScient(stopping,0)+".dat";
 	cout<<endl<<"Mu0 = "<<MuJac<<endl
+				<<"car_rate = "<<car_rate<<endl
 				<<"K = "<<K<<endl
 				<<"C = "<<C<<endl
 				<<"M = "<<M<<endl
