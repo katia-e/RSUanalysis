@@ -23,42 +23,52 @@ string toStringScient(double x, int precision){
 
 int main(int argc,char *argv[])
 {
-	// Analysis parameters
-	int nTerms = 10;
-	int nIter = 100;
-	// System parameters	
-	int K = 7;				// max number of users in the system
-	int C = 3;				// buffer capacity
-	int M = 3;				// number of ranges
-//	double beta[] = {1.0/30, 1.0/15, 1.0/30};		//  transition rate between the ranges
-	double beta[] = {1.0/30, 1.0/15, 1.0/30};
-	double car_rate = 0.1;	// rate of car arrivals	
-	double lam = 1;			// packet arrival rate
-	double MuJac = 0;		// reference point for series expansion
-	double stopping = 0.0001; // threshold of the spotting creteria 
-	double W = 0.9; 		// Stabilizing parameter
-	string fOutput = "QJTerms.dat";
-	for(int i = 1; i<argc; i++) // example of command line
-		switch (i){			// 10.0 7 3 3 1.0 20 0.000001 0.9
+	/* Default parameters */
+	
+	/* System parameters*/
+	int K = 7;					// max number of users in the system
+	int C = 3;					// buffer capacity
+	int M = 3;					// number of ranges	
+	double beta[] = {1.0/30, 1.0/15, 1.0/30}; //  transition rate between ranges
+	double data_rate[] = {0.1, 1.0, 0.1};
+	double car_rate = 0.1;		// rate of car arrivals	
+	double lam = 1;				// packet arrival rate	
+	
+	/* Analysis parameters */
+	int nTerms = 10;					// Number of terms
+	int nIter = 100;					// Number of iterations for each term
+	double stopping = 0.0001; 			// threshold of the spotting creteria 	
+	double MuJac = 0;					// reference point for series expansion	
+	double W = 0.9; 					// Stabilizing parameter
+	string fOutput = "";		// output file for the result
+	
+	/* Parse comand line parameters if given */
+	for(int i = 1; i<argc; i++) 
+		switch (i){			
 			case 1: MuJac = atof(argv[i]); 
 			case 2: car_rate = atof(argv[i]);
-			case 2: K = atoi(argv[i]); 
-			case 3: C = atoi(argv[i]); 
-			case 4: M = atoi(argv[i]); 
-			case 5: lam = atof(argv[i]);
-			case 6: nTerms = atoi(argv[i]);
-			case 7: stopping = atof(argv[i]);
-				cout<<endl<<argv[i]<<endl;
-			case 8: W = atof(argv[i]);
-			case 9: beta[0] = atof(argv[i]);
-			case 10: beta[1] = atof(argv[i]);
-			case 11: beta[2] = atof(argv[i]);
+			case 3: K = atoi(argv[i]); 
+			case 4: C = atoi(argv[i]); 
+			case 5: M = atoi(argv[i]); 
+			case 6: lam = atof(argv[i]);
+			case 7: nTerms = atoi(argv[i]);
+			case 8: stopping = atof(argv[i]);
+			case 9: W = atof(argv[i]);
+			case 10: beta[0] = atof(argv[i]);
+			case 11: beta[1] = atof(argv[i]);
+			case 12: beta[2] = atof(argv[i]);
+			case 13: data_rate[0] = atof(argv[i]);
+			case 14: data_rate[1] = atof(argv[i]);
+			case 15: data_rate[2] = atof(argv[i]);	
+			case 16: fOutput = argv[i];
 		};
 	double percision = 1;
-	fOutput = "QTermsK"+to_string(K)+
-					"-M"+to_string(M)+"-C"+to_string(C)+
-					"-mu"+toStringPrecision(MuJac,percision)+"-lam"+toStringPrecision(lam,percision)+
-					"-W"+toStringPrecision(W,percision) + "-stop"+toStringScient(stopping,0)+".dat";
+	if (fOutput.length() == 0)
+		/* Generate distinct name of the output file */	
+		fOutput = "QTermsK"+to_string(K)+
+						"-M"+to_string(M)+"-C"+to_string(C)+
+						"-mu"+toStringPrecision(MuJac,percision)+"-lam"+toStringPrecision(lam,percision)+
+						"-W"+toStringPrecision(W,percision) + "-stop"+toStringScient(stopping,0)+".dat";
 	cout<<endl<<"Mu0 = "<<MuJac<<endl
 				<<"car_rate = "<<car_rate<<endl
 				<<"K = "<<K<<endl
@@ -70,37 +80,43 @@ int main(int argc,char *argv[])
 				<<"eps = "<<stopping<<endl
 				<<"W = "<<W<<endl
 				<<"Output file is "<<fOutput<<endl
-				<<"beta = "<<beta[0]<<beta[1]<<beta[2];	
-				
-	int DIM = M*(C+1);		// number of dimentions in the queueing model
-	// Analysis parameters
-	int const nSamples = 20;
-	double muSamples[nSamples];
-	//--------------------------
-	// Create state space
-	int nStates = binomial(K, DIM);
-	cout<<"\nDimentions "<<DIM;
+				<<"beta = "<<beta[0]<<beta[1]<<beta[2]<<endl
+				<<"data_rate = "<<data_rate[0]<<data_rate[1]<<data_rate[2];
+
+	/* Parameters of the state space */
+	int DIM = M*(C+1);				// Number of dimentions in the queueing model
+	cout<<"\nDimentions "<<DIM;	
+	
+	int nStates = binomial(K, DIM); // Number of states in the queueing model
 	cout<<"\nState space size "<<nStates;
+
+	/* StateSpace defines structure for the state space. 
+		Dimenssion of the array @StateSpace is defined by @DIM and has to be hardcoded.
+			It is neceessary to check that @DIM equals the depth of @StateSpace.
+			Function allocateStateSpace() supports values of DIM = 6, 10, 12.
+		When changing @M or @C, check the value of DIM, 
+			uncomment appropriate initialisation for StateSpace and recompile.
+	*/
 //	int**********StateSpace;	StateSpace = new int********* [K+1];	// DIM = 10
-	int************StateSpace;	StateSpace = new int*********** [K+1]; // DIM = 12
-//	int******StateSpace;	StateSpace = new int***** [K+1];
+//	int******StateSpace;	StateSpace = new int***** [K+1]; // DIM = 6
+	int************StateSpace;	
+	StateSpace = new int*********** [K+1]; // DIM = 12
+	allocateStateSpace(StateSpace, K);	
+	
 	int iState = 0;
 	int size = 0;
-	allocateStateSpace(StateSpace, K);
-	// define scheduler
+
+	
+	// define vector of data rates mu
 	vect mu;
 	mu.init(DIM-M);
-	switch (M){
-		case 3: scheduler03(mu, C); break;
-		case 5: scheduler05(mu, C);	break;
-		default: scheduler00(mu, 1);
-	}
-	cout<<"\n Scheduler: ";
+	mu.fill(data_rate, M);
+	cout<<"\n Data rates in zones: ";
 	print(mu);	
-//	getchar();	
+	
+	//getchar();	
 	// Predefinitions for calculation
 	vect *ssdTermsJac; ssdTermsJac = new vect [nTerms];
-//	vect ssdTmp; ssdTmp.init(nStates);
 	vect QTerms; QTerms.init(nTerms);
 	vect nCarsTerms; nCarsTerms.init(nTerms);
 	for(int i=0; i<nTerms; i++)

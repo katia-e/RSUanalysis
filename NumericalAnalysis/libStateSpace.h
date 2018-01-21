@@ -68,8 +68,19 @@ struct vect{
 		for(int i = 0; i<n; i++)
 			x[i] = 0;
 	}
+	
+	void fill(double *sub_vector, int size){
+	// Fill values of @x with values of given array @sub_vector of size @size
+	// $n must be devidible by @size
+	if (n % size!= 0) {
+		cout<<"ERR vect.fill: $n must be devidible by @size";
+		exit (EXIT_FAILURE);
+	}
+	for (int i=0; i<n/size; i++)
+		for (int j=0; j<size; j++)
+			x[i*size+j] = sub_vector[j];
+	}
 	void copy(vect a){
-		// check
 		if (n < a.n){
 			printf ("stState: Vector being copied should have the same or smaller length than the storage");
 			exit (EXIT_FAILURE);
