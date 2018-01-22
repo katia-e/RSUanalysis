@@ -1,0 +1,56 @@
+function run_simulation(varargin)
+    %%  Parse input args
+    maxMu = str2double(varargin{1})
+    panicOnNan(maxMu)
+
+    car_rate = str2double(varargin{2})
+    panicOnNan(car_rate)
+    
+    K = uint32(str2double(varargin{3}))
+    panicOnNan(K)
+
+    C = uint32(str2double(varargin{4}))
+    panicOnNan(C)
+
+    M = uint32(str2double(varargin{5}))
+    panicOnNan(M)
+
+    lam = str2double(varargin{6})
+    panicOnNan(lam)
+
+    BETA = [str2double(varargin{7}), ...
+                    str2double(varargin{8}), ...
+                    str2double(varargin{9})]
+    panicOnNan(BETA)
+
+    muZones = [str2double(varargin{10}), ...
+                            str2double(varargin{11}), ...
+                            str2double(varargin{12})]
+    panicOnNan(muZones)
+
+    nSimSamples = uint32(str2double(varargin{13}))
+    nSimLoops = uint32(str2double(varargin{14}))
+
+    file = varargin{15}
+    if (length(file) == 0)
+        file = strcat('simdataK',int2str(K),'C',int2str(C),'M',int2str(M),'Lam',num2str(lam), '.mat');
+    end
+    
+    %% Predifine variables for simulation
+	DIM = M*(C+1) % number of dimentions in the queueing model
+    mu0 = zeros(1,DIM-M);
+	for n=1:C
+		mu0(M*(n-1)+1:M*n) = muZones;
+	end
+	mu0
+	 EQ = zeros(1,nSimSamples);       % mean number of packets in the system
+	 ECars	= zeros(1,nSimSamples); % mean number of cars in the system
+
+     %% Run simulation
+	 muSim = linspace(0, maxMu, nSimSamples);
+	 for n = 1:nSimSamples
+		n
+		[ECars(n) EQ(n)] = simona(K, C, M, nSimLoops, BETA, lam, car_rate, muSim(n)*mu0);	
+     end
+	 save(file, 'muSim', 'EQ', 'ECars');
+end
