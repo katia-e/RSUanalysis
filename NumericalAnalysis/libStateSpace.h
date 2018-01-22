@@ -208,14 +208,16 @@ void scheduler05(vect mu, int C){
 			mu.x[M*n+m] = mu.x[m]; 	
 }
 
-void saveterms(string f_name, vect terms){	
+void saveterms(string f_name, vect termsQ,vect termsAcc,vect termsTr){	
 	ofstream file;
 	file.open(f_name);
-	int nTerms = terms.n;
+	int nTerms = termsQ.n;
 	for(int iTerm = 0; iTerm < nTerms; iTerm++)
-		file<<terms.x[iTerm]<<std::setprecision(PRECISION)<<"\n";	
+		file<<termsQ.x[iTerm]<<"\t"<<termsAcc.x[iTerm]<<"\t"<<termsTr.x[iTerm]<<std::setprecision(PRECISION)<<"\n";	
 	file.close();
 }
+
+
 
 // 12 Dimentions
 void allocateStateSpace(int************X, int K){

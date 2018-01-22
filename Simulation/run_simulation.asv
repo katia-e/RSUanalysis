@@ -6,10 +6,10 @@ function run_simulation(varargin)
     car_rate = str2double(varargin{2})
     panicOnNan(car_rate)
     
-    K = str2double(varargin{3})
+    K = uint32(str2double(varargin{3}))
     panicOnNan(K)
 
-    C = str2double(varargin{4})
+    C = uint32(str2double(varargin{4}))
     panicOnNan(C)
 
     M = uint32(str2double(varargin{5}))
@@ -28,8 +28,8 @@ function run_simulation(varargin)
                             str2double(varargin{12})]
     panicOnNan(muZones)
 
-    nSimSamples = str2double(varargin{13})
-    nSimLoops = str2double(varargin{14})
+    nSimSamples = uint32(str2double(varargin{13}))
+    nSimLoops = uint32(str2double(varargin{14}))
 
     file = varargin{15}
     if (length(file) == 0)
@@ -45,16 +45,14 @@ function run_simulation(varargin)
 	mu0
 	 EQ = zeros(1,nSimSamples);       % mean number of packets in the system
 	 Acc	= zeros(1,nSimSamples); % mean number of cars in the system
-     Tr	= zeros(1,nSimSamples); % mean number of cars in the system
+     Acc	= zeros(1,nSimSamples); % mean number of cars in the system
 
      %% Run simulation
 	 muSim = linspace(0, maxMu, nSimSamples);
 	 for n = 1:nSimSamples
 		n
 		simRes = simona(K, C, M, nSimLoops, BETA, lam, car_rate, muSim(n)*mu0);	
-        EQ(n) = simRes.EQ
-        Acc(n) = simRes.Acc
-        Tr(n) = simRes.Acc
+        [EQ(n), Acc(n), Tr(n)] = [simRes.EQ, simRes.Acc, simRes.Acc];
      end
 	 save(file, 'muSim', 'EQ', 'Acc', 'Tr');
 end
