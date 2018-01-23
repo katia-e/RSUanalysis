@@ -1,7 +1,7 @@
 function run_simulation(varargin)
     %%  Parse input args
-    maxMu = str2double(varargin{1})
-    panicOnNan(maxMu)
+    maxLam = str2double(varargin{1})
+    panicOnNan(maxLam)
 
     car_rate = str2double(varargin{2})
     panicOnNan(car_rate)
@@ -15,27 +15,20 @@ function run_simulation(varargin)
     M = uint32(str2double(varargin{5}))
     panicOnNan(M)
 
-    lam = str2double(varargin{6})
-    panicOnNan(lam)
 
-    BETA = [str2double(varargin{7}), ...
-                    str2double(varargin{8}), ...
-                    str2double(varargin{9})]
+    BETA = [str2double(varargin{6}), ...
+                    str2double(varargin{7}), ...
+                    str2double(varargin{8})]
     panicOnNan(BETA)
 
-    muZones = [str2double(varargin{10}), ...
-                            str2double(varargin{11}), ...
-                            str2double(varargin{12})]
+    muZones = [str2double(varargin{9}), ...
+                            str2double(varargin{10}), ...
+                            str2double(varargin{11})]
     panicOnNan(muZones)
 
-    nSimSamples = str2double(varargin{13})
-    nSimLoops = str2double(varargin{14})
+    nSimSamples = str2double(varargin{12})
+    nSimLoops = str2double(varargin{13})
 
-    file = varargin{15}
-    if (length(file) == 0)
-        file = strcat('simdataK',int2str(K),'C',int2str(C),'M',int2str(M),'Lam',num2str(lam), '.mat');
-    end
-    
     %% Predifine variables for simulation
 	DIM = M*(C+1) % number of dimentions in the queueing model
     mu0 = zeros(1,DIM-M);
@@ -43,18 +36,20 @@ function run_simulation(varargin)
 		mu0(M*(n-1)+1:M*n) = muZones;
 	end
 	mu0
-	 EQ = zeros(1,nSimSamples);       % mean number of packets in the system
-	 Acc	= zeros(1,nSimSamples); % mean number of cars in the system
-     Tr	= zeros(1,nSimSamples); % mean number of cars in the system
-
-     %% Run simulation
-	 muSim = linspace(0, maxMu, nSimSamples);
-	 for n = 1:nSimSamples
+	lamSim = linspace(0, maxLam, nSimSamples);
+	MEASURES.EQ  = zeros(1,nSimSamples);
+	MEASURES.Acc = zeros(1,nSimSamples);
+	MEASURES.Tr	= zeros(1,nSimSamples);
+	for n = 1:nSimSamples
+		clock
 		n
-		simRes = simona(K, C, M, nSimLoops, BETA, lam, car_rate, muSim(n)*mu0);	
-        EQ(n) = simRes.EQ
-        Acc(n) = simRes.Acc
-        Tr(n) = simRes.Acc
-     end
-	 save(file, 'muSim', 'EQ', 'Acc', 'Tr');
+		TMP = simona(K, C, M, nSimLoops, BETA, lamSim(n), car_rate, mu0)			 
+		MEASURES.EQ(n) = TMP.EQ;
+		MEASURES.Acc(n) = TMP.Acc;
+		MEASURES.Tr(n) = TMP.Tr;
+	end
+	file = strcat('LamSimK',int2str(K),'-C',int2str(C),'-M',int2str(M),'-carRate', num2str(car_rate),'til',int2str(maxLam), '.mat');
+	save(file, 'lamSim','MEASURES');
+	'Saved to'
+	file
 end

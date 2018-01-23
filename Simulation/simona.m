@@ -23,7 +23,7 @@ function res = simona(K, C, M, nSimLoops, beta, lam, iCar_rate, muSim)
         x = rand()*GAMMA;
         CONTINUE = 1; 
         cursor = 0;
-        for i=1:M% packet arrival
+        for i=1:M	% packet arrival
 			for j = 0:C-1
 				num = j*M+i;
 				for k = 1:state(num)
@@ -36,7 +36,7 @@ function res = simona(K, C, M, nSimLoops, beta, lam, iCar_rate, muSim)
 				end
 			end  
         end
-        for i=1:M% transmissions
+        for i=1:M	% transmissions
 			for j = 1:C
 				num = j*M+i;
 				for k = 1:state(num)
@@ -71,8 +71,4 @@ function res = simona(K, C, M, nSimLoops, beta, lam, iCar_rate, muSim)
     res.EQ = meanSysContentSim/nSimLoops;
     res.Acc = rateAccPackets/nSimLoops;
     res.Tr = rateTrPackets/nSimLoops;
-     % %    Pr_vector = Pr_vector/current_time;
-     % %    meanSysContent(n) = Pr_vector'*nPacketsInStates;
-%     end
- %plot(muSim, meanSysContentSim)
 end
