@@ -28,7 +28,16 @@ function run_simulation(varargin)
 
     nSimSamples = str2double(varargin{12})
     nSimLoops = str2double(varargin{13})
-
+    
+    file = strcat('LamSimK',int2str(K),'-C',int2str(C),'-M',int2str(M),'-carRate', num2str(car_rate), 'til',int2str(maxLam))
+    file_mat = strcat(file, '.mat');
+    file_dat =  strcat(file, '.dat');
+    
+    % create file and headers
+    fileID = fopen(file_dat,'w');
+    fprintf(fileID,'lam \t EQ \t Acc \t Tr\n');
+    fclose(fileID);
+    
     %% Predifine variables for simulation
 	DIM = M*(C+1) % number of dimentions in the queueing model
     mu0 = zeros(1,DIM-M);
@@ -47,9 +56,12 @@ function run_simulation(varargin)
 		MEASURES.EQ(n) = TMP.EQ;
 		MEASURES.Acc(n) = TMP.Acc;
 		MEASURES.Tr(n) = TMP.Tr;
-	end
-	file = strcat('LamSimK',int2str(K),'-C',int2str(C),'-M',int2str(M),'-carRate', num2str(car_rate),'til',int2str(maxLam), '.mat');
-	save(file, 'lamSim','MEASURES');
+        
+        % dump to dat file
+        fileID = fopen(file_dat,'a');
+        fprintf(fileID,'%6.4f \t %6.4f \t %6.4f \t %6.4f \n', lamSim(n), TMP.EQ,  TMP.Acc, TMP.Tr);
+    end
+	save(file_mat, 'lamSim','MEASURES');
 	'Saved to'
-	file
+	file_mat
 end
