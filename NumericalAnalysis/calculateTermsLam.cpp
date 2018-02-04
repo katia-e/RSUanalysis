@@ -41,6 +41,7 @@ int main(int argc,char *argv[])
 	double stopping = 0.0001; 			// threshold of the spotting creteria 	
 	double LamJac = 1.5;					// reference point for series expansion	
 	double W = 0.9; 					// Stabilizing parameter
+	string specific_name = "num_res";			// name of the scenario
 	
 	for(int i = 1; i<argc; i++) 
 		switch (i){			
@@ -58,9 +59,10 @@ int main(int argc,char *argv[])
 			case 12: data_rate[0] = atof(argv[i]);
 			case 13: data_rate[1] = atof(argv[i]);
 			case 14: data_rate[2] = atof(argv[i]);	
+			case 15: specific_name = argv[i];
 		};
 	double percision = 1;
-	string fOutput = "LamTermsK"+to_string(K)+
+	string fOutput = specific_name + "-Lam-K"+to_string(K)+
 					"-M"+to_string(M)+"-C"+to_string(C)+
 					"-lam"+toStringPrecision(LamJac,percision)+"-carRate" + toStringPrecision(car_rate,percision)+
 					"-W"+toStringPrecision(W,percision) + "-stop"+toStringScient(stopping,0)+".dat";					

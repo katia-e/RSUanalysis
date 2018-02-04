@@ -28,8 +28,9 @@ function run_simulation(varargin)
 
     nSimSamples = str2double(varargin{12})
     nSimLoops = str2double(varargin{13})
+    scenarioName = varargin{14}
     
-    file = strcat('LamSimK',int2str(K),'-C',int2str(C),'-M',int2str(M),'-carRate', num2str(car_rate), 'til',int2str(maxLam))
+    file = strcat('SimLam-', scenarioName, '-K',int2str(K),'-C',int2str(C),'-M',int2str(M),'-carRate', num2str(car_rate), 'til',int2str(maxLam), '-loops', int2str(nSimLoops), '-samples', int2str(nSimSamples))
     file_mat = strcat(file, '.mat');
     file_dat =  strcat(file, '.dat');
     
@@ -45,7 +46,8 @@ function run_simulation(varargin)
 		mu0(M*(n-1)+1:M*n) = muZones;
 	end
 	mu0
-	lamSim = linspace(0, maxLam, nSimSamples);
+	%lamSim = linspace(0, maxLam, nSimSamples);
+	lamSim = logspace(-1,log10(maxLam), nSimSamples);
 	MEASURES.EQ  = zeros(1,nSimSamples);
 	MEASURES.Acc = zeros(1,nSimSamples);
 	MEASURES.Tr	= zeros(1,nSimSamples);
